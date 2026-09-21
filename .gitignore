@@ -1,0 +1,26 @@
+## Visual Studio / .NET
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svclog
+
+## Test Results
+TestResults/
+*.trx
+coverage.json
+*.cobertura.xml
+
+## OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

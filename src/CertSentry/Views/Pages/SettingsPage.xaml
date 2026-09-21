@@ -1,0 +1,91 @@
+<Page
+    x:Class="CertSentry.Views.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    mc:Ignorable="d"
+    d:DesignHeight="850" d:DesignWidth="1100"
+    Title="Settings">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,24,32,32">
+
+            <!-- Title -->
+            <TextBlock Text="Settings &amp; Appearance" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Text="Customize application theme, window effects, and inspect system runtime environment." FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+            <!-- Appearance Section -->
+            <ui:Card Padding="20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Theme &amp; Backdrop" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,14" />
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Application Theme" FontWeight="SemiBold" />
+                            <TextBlock Text="Select your visual preference. CertSentry defaults to Fluent Dark Theme with Mica backdrop." FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <ui:Button Content="Dark Theme" Icon="{ui:SymbolIcon Symbol=WeatherMoon24}" Command="{Binding ViewModel.SetDarkThemeCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="Light Theme" Icon="{ui:SymbolIcon Symbol=WeatherSunny24}" Command="{Binding ViewModel.SetLightThemeCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="System Theme" Icon="{ui:SymbolIcon Symbol=Desktop24}" Command="{Binding ViewModel.SetSystemThemeCommand}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ViewModel.StatusMessage}" FontSize="12" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" Margin="0,4,0,0" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Environment Specs -->
+            <ui:Card Padding="20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="System Environment" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,14" />
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text=".NET Framework Runtime:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="{Binding ViewModel.DotnetRuntime}" FontWeight="SemiBold" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Operating System:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="{Binding ViewModel.OsVersion}" FontWeight="SemiBold" />
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="CertSentry Version:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="{Binding ViewModel.AppVersion}" FontWeight="SemiBold" />
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- About Section -->
+            <ui:Card Padding="20">
+                <StackPanel>
+                    <TextBlock Text="About CertSentry" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="CertSentry (Localhost SSL/TLS Doctor) is an open-source desktop utility designed to solve localhost SSL/TLS debugging frustrations for web and cloud developers." FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12" />
+                    <TextBlock Text="Licensed under the MIT Open Source License. Built with C# (.NET 10), WPF, Lepo WPF-UI, and CommunityToolkit.Mvvm." FontSize="12" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+            </ui:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

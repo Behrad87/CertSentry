@@ -1,0 +1,155 @@
+<Page
+    x:Class="CertSentry.Views.Pages.CertGeneratorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:CertSentry.Views.Converters"
+    mc:Ignorable="d"
+    d:DesignHeight="850" d:DesignWidth="1100"
+    Title="Certificate Studio">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,24,32,32">
+
+            <!-- Title -->
+            <TextBlock Text="Certificate Studio &amp; Generator" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Text="Generate custom development certificates, multi-SAN localhost certs, or local Root CAs with 1-click Windows store installation." FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+            <!-- Notification -->
+            <ui:InfoBar
+                IsOpen="True"
+                Severity="Informational"
+                Message="{Binding ViewModel.NotificationMessage}"
+                Visibility="{Binding ViewModel.NotificationMessage, Converter={StaticResource StringNotEmptyToVisibility}}"
+                Margin="0,0,0,16" />
+
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Configuration Form Card -->
+                <ui:Card Grid.Column="0" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Certificate Parameters" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16" />
+
+                        <!-- Common Name -->
+                        <TextBlock Text="Common Name (CN)" FontWeight="SemiBold" Margin="0,0,0,6" />
+                        <ui:TextBox
+                            PlaceholderText="e.g. localhost, myapp.local, *.test"
+                            Text="{Binding ViewModel.CommonName, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,0,0,14" />
+
+                        <!-- Subject Alternative Names -->
+                        <TextBlock Text="Subject Alternative Names (SANs, comma separated)" FontWeight="SemiBold" Margin="0,0,0,6" />
+                        <ui:TextBox
+                            PlaceholderText="localhost, 127.0.0.1, ::1, host.docker.internal"
+                            Text="{Binding ViewModel.SanInput, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,0,14,0" />
+                        <TextBlock Text="Include all hostnames and IP addresses your local clients will use." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,4,0,14" />
+
+                        <!-- Key Algorithm -->
+                        <TextBlock Text="Key Algorithm" FontWeight="SemiBold" Margin="0,0,0,6" />
+                        <ComboBox
+                            SelectedIndex="{Binding ViewModel.SelectedAlgorithmIndex}"
+                            Margin="0,0,0,14">
+                            <ComboBoxItem Content="RSA 2048-bit (Standard Compatibility)" />
+                            <ComboBoxItem Content="RSA 4096-bit (High Security)" />
+                            <ComboBoxItem Content="ECDSA NIST P-256 (Fast / Modern)" />
+                        </ComboBox>
+
+                        <!-- Validity Duration -->
+                        <TextBlock Text="Validity Period" FontWeight="SemiBold" Margin="0,0,0,6" />
+                        <ComboBox
+                            SelectedValuePath="Tag"
+                            SelectedValue="{Binding ViewModel.ValidityDays}"
+                            Margin="0,0,0,14">
+                            <ComboBoxItem Content="30 Days (Short-lived test)" Tag="30" />
+                            <ComboBoxItem Content="90 Days (Quarterly)" Tag="90" />
+                            <ComboBoxItem Content="1 Year (365 Days - Recommended)" Tag="365" IsSelected="True" />
+                            <ComboBoxItem Content="2 Years (730 Days)" Tag="730" />
+                            <ComboBoxItem Content="5 Years (1825 Days - Ideal for Root CA)" Tag="1825" />
+                        </ComboBox>
+
+                        <!-- Options -->
+                        <CheckBox
+                            Content="Create as Certificate Authority (Root CA)"
+                            IsChecked="{Binding ViewModel.IsCertificateAuthority}"
+                            Margin="0,0,0,8" />
+
+                        <CheckBox
+                            Content="Automatically Install into Windows Store"
+                            IsChecked="{Binding ViewModel.AutoInstallToStore}"
+                            Margin="0,0,0,20" />
+
+                        <!-- Generate Button -->
+                        <ui:Button
+                            Appearance="Primary"
+                            Icon="{ui:SymbolIcon Symbol=Checkmark24}"
+                            Content="Generate &amp; Build Certificate"
+                            Command="{Binding ViewModel.GenerateCertificateCommand}"
+                            HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="{Binding ViewModel.StatusMessage}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Export & Output Panel -->
+                <ui:Card Grid.Column="2" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Certificate Exports &amp; Files" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16" />
+
+                        <StackPanel Visibility="{Binding ViewModel.HasGeneratedCertificate, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <ui:Button
+                                    Icon="{ui:SymbolIcon Symbol=FolderZip24}"
+                                    Content="Export PFX"
+                                    Command="{Binding ViewModel.ExportPfxCommand}"
+                                    Margin="0,0,8,0" />
+                                <ui:Button
+                                    Icon="{ui:SymbolIcon Symbol=DocumentBulletList24}"
+                                    Content="Export CRT + KEY"
+                                    Command="{Binding ViewModel.ExportPemPairCommand}"
+                                    Margin="0,0,8,0" />
+                                <ui:Button
+                                    Icon="{ui:SymbolIcon Symbol=Copy24}"
+                                    Content="Copy CRT"
+                                    Command="{Binding ViewModel.CopyCertPemCommand}"
+                                    Margin="0,0,8,0" />
+                                <ui:Button
+                                    Icon="{ui:SymbolIcon Symbol=Key24}"
+                                    Content="Copy Key"
+                                    Command="{Binding ViewModel.CopyKeyPemCommand}" />
+                            </StackPanel>
+
+                            <TextBlock Text="Generated Public Certificate (.crt)" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
+                                <TextBox Text="{Binding ViewModel.CertificatePemOutput, Mode=OneWay}" FontFamily="Consolas" FontSize="10" IsReadOnly="True" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource TextFillColorSecondaryBrush}" MaxHeight="140" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
+                            </Border>
+
+                            <TextBlock Text="Generated Private Key (.key)" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="8">
+                                <TextBox Text="{Binding ViewModel.PrivateKeyPemOutput, Mode=OneWay}" FontFamily="Consolas" FontSize="10" IsReadOnly="True" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource TextFillColorSecondaryBrush}" MaxHeight="140" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding ViewModel.HasGeneratedCertificate, Converter={StaticResource BoolToVisibility}, ConverterParameter=Inverse}" HorizontalAlignment="Center" Margin="0,60,0,0">
+                            <ui:SymbolIcon Symbol="Certificate24" FontSize="48" Foreground="{DynamicResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                            <TextBlock Text="Configure parameters on the left and click 'Generate &amp; Build Certificate' to create an instant SSL certificate." Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" />
+                        </StackPanel>
+                    </StackPanel>
+                </ui:Card>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

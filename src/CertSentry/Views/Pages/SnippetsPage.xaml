@@ -1,0 +1,110 @@
+<Page
+    x:Class="CertSentry.Views.Pages.SnippetsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:CertSentry.Views.Converters"
+    mc:Ignorable="d"
+    d:DesignHeight="850" d:DesignWidth="1100"
+    Title="Dev Snippets">
+
+    <Page.Resources>
+        <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,24,32,32">
+
+            <!-- Title -->
+            <TextBlock Text="Environment &amp; Dev Integration Snippets" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Text="Ready-to-use configuration commands to make Node.js, Docker, Git, Python, cURL, and WSL trust your local SSL certificates." FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+            <!-- Notification -->
+            <ui:InfoBar
+                IsOpen="True"
+                Severity="Informational"
+                Message="{Binding ViewModel.NotificationMessage}"
+                Visibility="{Binding ViewModel.NotificationMessage, Converter={StaticResource StringNotEmptyToVisibility}}"
+                Margin="0,0,0,16" />
+
+            <!-- Target Certificate Inputs Card -->
+            <ui:Card Padding="16" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Custom Certificate Paths" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Root CA Path (.crt):" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <ui:TextBox Grid.Column="1" Text="{Binding ViewModel.CaCertPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" />
+                        <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=FolderOpen24}" Content="Browse..." Command="{Binding ViewModel.BrowseCaCertCommand}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Private Key (.key):" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <ui:TextBox Grid.Column="1" Text="{Binding ViewModel.PrivateKeyPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" />
+                        <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Symbol=FolderOpen24}" Content="Browse..." Command="{Binding ViewModel.BrowsePrivateKeyCommand}" />
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Target Port:" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <ui:NumberBox Grid.Column="1" Value="{Binding ViewModel.PortNumber, Mode=TwoWay}" Minimum="1" Maximum="65535" SpinButtonPlacementMode="Inline" />
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Snippets List -->
+            <ItemsControl ItemsSource="{Binding ViewModel.Snippets}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,14" Padding="16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                        <Border Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Category}" FontSize="11" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" FontWeight="SemiBold" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <ui:Button
+                                        Grid.Column="1"
+                                        Icon="{ui:SymbolIcon Symbol=Copy24}"
+                                        Content="Copy Code"
+                                        Command="{Binding DataContext.ViewModel.CopySnippetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}" />
+                                </Grid>
+
+                                <TextBlock Text="{Binding Explanation}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8" />
+
+                                <Border Background="#0F0F12" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="12">
+                                    <TextBox Text="{Binding Code, Mode=OneWay}" FontFamily="Consolas" FontSize="11" Foreground="#00D2FF" Background="Transparent" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" />
+                                </Border>
+                            </StackPanel>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

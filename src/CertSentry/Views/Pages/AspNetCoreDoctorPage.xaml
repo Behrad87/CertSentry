@@ -1,0 +1,148 @@
+<Page
+    x:Class="CertSentry.Views.Pages.AspNetCoreDoctorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:CertSentry.Views.Converters"
+    mc:Ignorable="d"
+    d:DesignHeight="850" d:DesignWidth="1100"
+    Title="ASP.NET Core Doctor">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,24,32,32">
+
+            <!-- Title -->
+            <TextBlock Text="ASP.NET Core HTTPS Dev-Cert Specialist" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Text="Automated diagnostics, duplicate version detection, and 1-click repair for 'dotnet dev-certs https'." FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+            <!-- Subsystem Status Card -->
+            <ui:Card Padding="20" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="22" Foreground="#107C41" Margin="0,0,8,0" Visibility="{Binding ViewModel.Diagnosis.IsFullyTrusted, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:SymbolIcon Symbol="Warning24" FontSize="22" Foreground="#D89B00" Margin="0,0,8,0" Visibility="{Binding ViewModel.Diagnosis.HasDuplicates, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock Text="{Binding ViewModel.Diagnosis.SummaryMessage}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding ViewModel.Diagnosis.RecommendedAction}" FontSize="13" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                        <StackPanel Orientation="Horizontal">
+                            <ui:Button
+                                Appearance="Primary"
+                                Icon="{ui:SymbolIcon Symbol=Wrench24}"
+                                Content="1-Click Clean &amp; Re-Issue"
+                                Command="{Binding ViewModel.CleanAndReissueCommand}"
+                                Margin="0,0,8,0" />
+                            <ui:Button
+                                Icon="{ui:SymbolIcon Symbol=ShieldKeyhole24}"
+                                Content="Trust Dev Certificate"
+                                Command="{Binding ViewModel.TrustCertCommand}"
+                                Margin="0,0,8,0" />
+                            <ui:Button
+                                Icon="{ui:SymbolIcon Symbol=Delete24}"
+                                Content="Clean All Dev-Certs"
+                                Command="{Binding ViewModel.CleanCertsCommand}"
+                                Margin="0,0,8,0" />
+                            <ui:Button
+                                Icon="{ui:SymbolIcon Symbol=ArrowClockwise24}"
+                                Content="Re-check"
+                                Command="{Binding ViewModel.DiagnoseCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Stat / Version Badge -->
+                    <Border Grid.Column="1" Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16,12" VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding ViewModel.Diagnosis.ActiveVersion, StringFormat='{}v{0}'}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
+                            <TextBlock Text="CLI Version" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ui:Card>
+
+            <!-- Duplicate Versions Warning Box -->
+            <ui:Card Margin="0,0,0,16" Padding="16" Visibility="{Binding ViewModel.Diagnosis.HasDuplicates, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <ui:SymbolIcon Symbol="Warning24" Foreground="#D89B00" FontSize="18" Margin="0,0,8,0" />
+                        <TextBlock Text="Conflicting Duplicate Certificates in Windows Store" FontSize="15" FontWeight="SemiBold" Foreground="#D89B00" />
+                    </StackPanel>
+                    <TextBlock Text="Having multiple ASP.NET development certificates installed often breaks Kestrel and IIS Express HTTPS port bindings. CertSentry recommends using 1-Click Clean &amp; Re-Issue to leave exactly one valid, trusted certificate." FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,10" />
+
+                    <ItemsControl ItemsSource="{Binding ViewModel.Diagnosis.Certificates}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Version, StringFormat='{}Version {0}'}" FontWeight="SemiBold" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Thumbprint}" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding TrustLevel, StringFormat='{}Trust: {0}'}" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Export for Docker / Containers -->
+            <ui:Card Padding="16" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Export Dev-Cert for Docker &amp; Containers" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Export the ASP.NET Core dev certificate into a password-protected PFX file for mounting inside Docker Compose or Linux containers." FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:PasswordBox
+                            Grid.Column="0"
+                            PlaceholderText="Enter PFX Export Password (optional or leave empty)"
+                            Password="{Binding ViewModel.PfxPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Margin="0,0,10,0" />
+                        <ui:Button
+                            Grid.Column="1"
+                            Icon="{ui:SymbolIcon Symbol=FolderZip24}"
+                            Content="Export PFX Bundle..."
+                            Command="{Binding ViewModel.ExportPfxCommand}" />
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Live Terminal Output -->
+            <TextBlock Text="Doctor Command Log / Terminal" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <Border Background="#0F0F12" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+                <TextBox
+                    Text="{Binding ViewModel.TerminalOutput, Mode=OneWay}"
+                    FontFamily="Consolas"
+                    FontSize="11"
+                    Foreground="#00FF66"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    IsReadOnly="True"
+                    MinHeight="180"
+                    MaxHeight="260"
+                    VerticalScrollBarVisibility="Auto"
+                    TextWrapping="Wrap" />
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
