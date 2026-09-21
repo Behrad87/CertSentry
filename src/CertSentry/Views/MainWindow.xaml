@@ -82,7 +82,7 @@
                     Content="Port Scanner"
                     TargetPageType="{x:Type pages:PortScannerPage}">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Radar24" />
+                        <ui:SymbolIcon Symbol="Radar20" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
 

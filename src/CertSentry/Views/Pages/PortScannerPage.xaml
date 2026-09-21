@@ -54,7 +54,7 @@
                     <ui:Button
                         Grid.Column="0"
                         Appearance="Primary"
-                        Icon="{ui:SymbolIcon Symbol=Radar24}"
+                        Icon="{ui:SymbolIcon Symbol=Radar20}"
                         Content="Scan Standard Ports"
                         Command="{Binding ViewModel.ScanDefaultPortsCommand}" />
 
