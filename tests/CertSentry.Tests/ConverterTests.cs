@@ -55,6 +55,10 @@ public class ConverterTests
         var invertedConverter = new NullToVisibilityConverter { Invert = true };
         invertedConverter.Convert(null, typeof(Visibility), null, CultureInfo.InvariantCulture).Should().Be(Visibility.Visible);
         invertedConverter.Convert("NotNull", typeof(Visibility), null, CultureInfo.InvariantCulture).Should().Be(Visibility.Collapsed);
+
+        // Test parameter-based inversion
+        converter.Convert(null, typeof(Visibility), "Inverse", CultureInfo.InvariantCulture).Should().Be(Visibility.Visible);
+        converter.Convert("NotNull", typeof(Visibility), "Inverse", CultureInfo.InvariantCulture).Should().Be(Visibility.Collapsed);
     }
 
     [Fact]
@@ -67,6 +71,10 @@ public class ConverterTests
         var invertedConverter = new BoolToVisibilityConverter { Invert = true };
         invertedConverter.Convert(true, typeof(Visibility), null, CultureInfo.InvariantCulture).Should().Be(Visibility.Collapsed);
         invertedConverter.Convert(false, typeof(Visibility), null, CultureInfo.InvariantCulture).Should().Be(Visibility.Visible);
+
+        // Test parameter-based inversion
+        converter.Convert(true, typeof(Visibility), "Inverse", CultureInfo.InvariantCulture).Should().Be(Visibility.Collapsed);
+        converter.Convert(false, typeof(Visibility), "Inverse", CultureInfo.InvariantCulture).Should().Be(Visibility.Visible);
     }
 
     [Fact]

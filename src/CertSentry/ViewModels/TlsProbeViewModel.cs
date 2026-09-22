@@ -107,17 +107,113 @@ public partial class TlsProbeViewModel : ObservableObject, INavigationAware
         }
     }
 
+    public string GenerateDiagnosticReport()
+    {
+        if (Result == null) return string.Empty;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("=================================================");
+        sb.AppendLine(" CertSentry TLS Endpoint Diagnostic Report");
+        sb.AppendLine("=================================================");
+        sb.AppendLine($"Target URL:           {Result.TargetUrl}");
+        sb.AppendLine($"Resolved IP:          {Result.ResolvedIp}");
+        sb.AppendLine($"Port:                 {Result.Port}");
+        sb.AppendLine($"Connected:            {Result.IsConnected}");
+        sb.AppendLine($"Verdict:              {Result.VerdictTitle}");
+        sb.AppendLine($"Verdict Details:      {Result.VerdictDescription}");
+        sb.AppendLine();
+        sb.AppendLine("--- Latency Breakdown ---");
+        sb.AppendLine($"DNS Resolution:       {Result.DnsResolutionMs} ms");
+        sb.AppendLine($"TCP Connect:          {Result.TcpConnectMs} ms");
+        sb.AppendLine($"TLS Handshake:        {Result.TlsHandshakeMs} ms");
+        sb.AppendLine($"Total Probe Time:     {Result.TotalDurationMs} ms");
+        sb.AppendLine();
+        sb.AppendLine("--- Protocol & Cryptography ---");
+        sb.AppendLine($"TLS Version:          {Result.TlsProtocolVersion}");
+        sb.AppendLine($"ALPN Protocol:        {Result.ApplicationProtocol}");
+        sb.AppendLine($"Cipher Suite:         {Result.NegotiatedCipherSuite}");
+        sb.AppendLine($"Key Exchange:         {Result.KeyExchangeAlgorithm}");
+        sb.AppendLine($"Cipher Algorithm:     {Result.CipherAlgorithm} ({Result.CipherStrength} bits)");
+        sb.AppendLine($"Hash Algorithm:       {Result.HashAlgorithm} ({Result.HashStrength} bits)");
+        sb.AppendLine($"SSL Policy Errors:    {Result.SslPolicyErrors}");
+        sb.AppendLine();
+
+        if (Result.ServerCertificate != null)
+        {
+            var cert = Result.ServerCertificate;
+            sb.AppendLine("--- Server Certificate ---");
+            sb.AppendLine($"Subject (CN):         {cert.CommonName}");
+            sb.AppendLine($"Distinguished Name:   {cert.Subject}");
+            sb.AppendLine($"Issuer:               {cert.Issuer}");
+            sb.AppendLine($"Valid From:           {cert.NotBefore:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine($"Valid To:             {cert.NotAfter:yyyy-MM-dd HH:mm:ss} ({cert.DaysUntilExpiration} days remaining)");
+            sb.AppendLine($"Health Status:        {cert.HealthStatus}");
+            sb.AppendLine($"SANs:                 {cert.SansDisplaySummary}");
+            sb.AppendLine($"Thumbprint:           {cert.Thumbprint}");
+            sb.AppendLine($"Key Type:             {cert.KeyAlgorithm} ({cert.KeySize}-bit)");
+            sb.AppendLine($"Signature Algorithm:  {cert.SignatureAlgorithm}");
+            sb.AppendLine($"Has Private Key:      {cert.HasPrivateKey}");
+            sb.AppendLine();
+        }
+
+        if (Result.CertificateChain.Count > 0)
+        {
+            sb.AppendLine("--- Certificate Chain Hierarchy ---");
+            for (int i = 0; i < Result.CertificateChain.Count; i++)
+            {
+                var c = Result.CertificateChain[i];
+                sb.AppendLine($" [{i}] {c.CommonName} (Expires: {c.NotAfter:yyyy-MM-dd}) - {c.HealthStatus}");
+            }
+            sb.AppendLine();
+        }
+
+        if (Result.Issues.Count > 0)
+        {
+            sb.AppendLine("--- Diagnostic Issues & Remedies ---");
+            foreach (var issue in Result.Issues)
+            {
+                sb.AppendLine($"[{issue.Severity}] {issue.Title}");
+                sb.AppendLine($"  Description: {issue.Description}");
+                sb.AppendLine($"  Remedy:      {issue.Remedy}");
+            }
+            sb.AppendLine();
+        }
+
+        if (Result.Recommendations.Count > 0)
+        {
+            sb.AppendLine("--- Recommendations ---");
+            foreach (var rec in Result.Recommendations)
+            {
+                sb.AppendLine($"* {rec}");
+            }
+        }
+
+        return sb.ToString();
+    }
+
     [RelayCommand]
     public void CopyDetails()
     {
         if (Result == null) return;
-        var details = $"Endpoint: {Result.TargetUrl}\n" +
-                      $"Protocol: {Result.TlsProtocolVersion}\n" +
-                      $"Cipher Suite: {Result.NegotiatedCipherSuite}\n" +
-                      $"Certificate: {Result.ServerCertificate?.Subject}\n" +
-                      $"SANs: {Result.ServerCertificate?.SansDisplaySummary}\n" +
-                      $"Verdict: {Result.VerdictTitle} - {Result.VerdictDescription}";
-        Clipboard.SetText(details);
-        CopyNotification = "Handshake report copied to clipboard!";
+        var report = GenerateDiagnosticReport();
+        Clipboard.SetText(report);
+        CopyNotification = "Full diagnostic report copied to clipboard!";
+    }
+
+    [RelayCommand]
+    public void ExportReport()
+    {
+        if (Result == null) return;
+        var sfd = new Microsoft.Win32.SaveFileDialog
+        {
+            FileName = $"TlsReport_{Result.Host}_{Result.Port}_{DateTime.Now:yyyyMMdd_HHmmss}.txt",
+            Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            Title = "Save TLS Diagnostic Report"
+        };
+        if (sfd.ShowDialog() == true)
+        {
+            System.IO.File.WriteAllText(sfd.FileName, GenerateDiagnosticReport());
+            CopyNotification = $"Report saved to {System.IO.Path.GetFileName(sfd.FileName)}";
+        }
     }
 }

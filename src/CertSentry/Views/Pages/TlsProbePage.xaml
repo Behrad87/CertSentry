@@ -194,7 +194,12 @@
                         <ui:Button
                             Icon="{ui:SymbolIcon Symbol=DocumentCopy24}"
                             Content="Copy Full Report"
-                            Command="{Binding ViewModel.CopyDetailsCommand}" />
+                            Command="{Binding ViewModel.CopyDetailsCommand}"
+                            Margin="0,0,8,0" />
+                        <ui:Button
+                            Icon="{ui:SymbolIcon Symbol=Save24}"
+                            Content="Export Report..."
+                            Command="{Binding ViewModel.ExportReportCommand}" />
                     </StackPanel>
                 </ui:Card>
 

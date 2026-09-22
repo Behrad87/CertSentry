@@ -142,16 +142,27 @@
                         </GridViewColumn>
 
                         <!-- Action -->
-                        <GridViewColumn Header="Actions" Width="120">
+                        <GridViewColumn Header="Actions" Width="180">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ui:Button
-                                        Icon="{ui:SymbolIcon Symbol=Copy24}"
-                                        Content="Copy URL"
-                                        Padding="6,3"
-                                        FontSize="11"
-                                        Command="{Binding DataContext.ViewModel.CopyPortUrlCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                        CommandParameter="{Binding}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:Button
+                                            Appearance="Secondary"
+                                            Icon="{ui:SymbolIcon Symbol=Play24}"
+                                            Content="Probe"
+                                            Padding="6,3"
+                                            FontSize="11"
+                                            Margin="0,0,6,0"
+                                            Command="{Binding DataContext.ViewModel.ProbePortInDoctorCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}" />
+                                        <ui:Button
+                                            Icon="{ui:SymbolIcon Symbol=Copy24}"
+                                            Content="Copy"
+                                            Padding="6,3"
+                                            FontSize="11"
+                                            Command="{Binding DataContext.ViewModel.CopyPortUrlCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}" />
+                                    </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

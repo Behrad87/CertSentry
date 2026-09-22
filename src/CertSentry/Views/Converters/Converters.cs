@@ -82,7 +82,8 @@ public class NullToVisibilityConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         bool isNull = value == null;
-        if (Invert) isNull = !isNull;
+        bool shouldInvert = Invert || string.Equals(parameter as string, "Inverse", StringComparison.OrdinalIgnoreCase) || string.Equals(parameter as string, "Invert", StringComparison.OrdinalIgnoreCase);
+        if (shouldInvert) isNull = !isNull;
         return isNull ? Visibility.Collapsed : Visibility.Visible;
     }
 
@@ -97,7 +98,8 @@ public class BoolToVisibilityConverter : IValueConverter
     {
         if (value is bool b)
         {
-            if (Invert) b = !b;
+            bool shouldInvert = Invert || string.Equals(parameter as string, "Inverse", StringComparison.OrdinalIgnoreCase) || string.Equals(parameter as string, "Invert", StringComparison.OrdinalIgnoreCase);
+            if (shouldInvert) b = !b;
             return b ? Visibility.Visible : Visibility.Collapsed;
         }
         return Visibility.Collapsed;

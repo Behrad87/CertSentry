@@ -27,6 +27,9 @@ public partial class AspNetCoreDoctorViewModel : ObservableObject, INavigationAw
     [ObservableProperty]
     private string _pfxPassword = string.Empty;
 
+    [ObservableProperty]
+    private string _notificationMessage = string.Empty;
+
     public AspNetCoreDoctorViewModel(IAspNetCoreDevCertDoctor doctor)
     {
         _doctor = doctor;
@@ -168,5 +171,21 @@ public partial class AspNetCoreDoctorViewModel : ObservableObject, INavigationAw
     private void AppendTerminal(string message)
     {
         TerminalOutput = $"{TerminalOutput}\n[{DateTime.Now:HH:mm:ss}] {message}";
+    }
+
+    [RelayCommand]
+    public void CopyTerminalOutput()
+    {
+        if (!string.IsNullOrWhiteSpace(TerminalOutput))
+        {
+            Clipboard.SetText(TerminalOutput);
+            NotificationMessage = "Terminal output copied to clipboard!";
+        }
+    }
+
+    [RelayCommand]
+    public void ClearTerminal()
+    {
+        TerminalOutput = string.Empty;
     }
 }
