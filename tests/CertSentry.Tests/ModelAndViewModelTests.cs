@@ -108,4 +108,82 @@ public class ModelAndViewModelTests
         vm.Results.Should().BeEmpty();
         vm.NotificationMessage.Should().Contain("Please enter valid port numbers");
     }
+
+    [Fact]
+    public void TlsProbeViewModel_GenerateDiagnosticReport_ShouldContainExpectedSections()
+    {
+        var vm = new TlsProbeViewModel(null!, null!);
+        vm.Result = new TlsProbeResult
+        {
+            TargetUrl = "https://localhost:5001",
+            ResolvedIp = "127.0.0.1",
+            Port = 5001,
+            IsConnected = true,
+            VerdictTitle = "Secure & Trusted",
+            VerdictDescription = "Connection negotiated successfully.",
+            DnsResolutionMs = 2,
+            TcpConnectMs = 5,
+            TlsHandshakeMs = 15,
+            TlsProtocolVersion = "Tls13",
+            NegotiatedCipherSuite = "TLS_AES_256_GCM_SHA384",
+            ServerCertificate = new CertificateItem
+            {
+                CommonName = "localhost",
+                Subject = "CN=localhost",
+                Issuer = "CN=localhost",
+                NotBefore = DateTime.UtcNow.AddDays(-10),
+                NotAfter = DateTime.UtcNow.AddDays(355),
+                Thumbprint = "ABCDEF1234567890",
+                KeyAlgorithm = "RSA",
+                KeySize = 2048,
+                SignatureAlgorithm = "sha256RSA",
+                HasPrivateKey = true
+            },
+            Issues = new()
+            {
+                new CertificateValidationIssue
+                {
+                    Title = "Test Issue",
+                    Description = "Test issue description",
+                    Remedy = "Test issue remedy",
+                    Severity = ProbeSeverity.Warning
+                }
+            }
+        };
+
+        var report = vm.GenerateDiagnosticReport();
+        report.Should().Contain("CertSentry TLS Endpoint Diagnostic Report");
+        report.Should().Contain("https://localhost:5001");
+        report.Should().Contain("TLS_AES_256_GCM_SHA384");
+        report.Should().Contain("CN=localhost");
+        report.Should().Contain("Test Issue");
+        report.Should().Contain("Test issue remedy");
+    }
+
+    [Fact]
+    public async Task PortScannerViewModel_ProbePortInDoctorAsync_ShouldSetTargetOnTlsProbeViewModel()
+    {
+        var fakeService = new FakePortScannerService();
+        var tlsProbeVm = new TlsProbeViewModel(null!, null!);
+        var portScannerVm = new PortScannerViewModel(fakeService, null, tlsProbeVm);
+
+        var scanItem = new PortScanResult
+        {
+            Port = 8443,
+            Status = PortServiceType.Https
+        };
+
+        await portScannerVm.ProbePortInDoctorAsync(scanItem);
+
+        tlsProbeVm.TargetUrl.Should().Be("https://localhost:8443");
+    }
+
+    [Fact]
+    public void AspNetCoreDoctorViewModel_ClearTerminal_ShouldResetOutput()
+    {
+        var vm = new AspNetCoreDoctorViewModel(null!);
+        vm.TerminalOutput = "Some test logs";
+        vm.ClearTerminal();
+        vm.TerminalOutput.Should().BeEmpty();
+    }
 }

@@ -50,16 +50,12 @@ public class CertificateGeneratorService : ICertificateGeneratorService
             var certReq = new CertificateRequest(subjectName, rsa, request.HashAlgorithm, RSASignaturePadding.Pkcs1);
             ConfigureExtensions(certReq, request);
 
-            if (request.IsCertificateAuthority)
+            var cert = certReq.CreateSelfSigned(notBefore, notAfter);
+            if (!string.IsNullOrWhiteSpace(request.FriendlyName) && OperatingSystem.IsWindows())
             {
-                var cert = certReq.CreateSelfSigned(notBefore, notAfter);
-                return cert;
+                try { cert.FriendlyName = request.FriendlyName; } catch { }
             }
-            else
-            {
-                var cert = certReq.CreateSelfSigned(notBefore, notAfter);
-                return cert;
-            }
+            return cert;
         }
         else
         {
@@ -75,6 +71,10 @@ public class CertificateGeneratorService : ICertificateGeneratorService
             ConfigureExtensions(certReq, request);
 
             var cert = certReq.CreateSelfSigned(notBefore, notAfter);
+            if (!string.IsNullOrWhiteSpace(request.FriendlyName) && OperatingSystem.IsWindows())
+            {
+                try { cert.FriendlyName = request.FriendlyName; } catch { }
+            }
             return cert;
         }
     }
@@ -109,7 +109,12 @@ public class CertificateGeneratorService : ICertificateGeneratorService
             ConfigureExtensions(certReq, request);
 
             using var signedCert = certReq.Create(issuerCaCertificate, notBefore, notAfter, serialNumber);
-            return signedCert.CopyWithPrivateKey(rsa);
+            var leafWithKey = signedCert.CopyWithPrivateKey(rsa);
+            if (!string.IsNullOrWhiteSpace(request.FriendlyName) && OperatingSystem.IsWindows())
+            {
+                try { leafWithKey.FriendlyName = request.FriendlyName; } catch { }
+            }
+            return leafWithKey;
         }
         else
         {
@@ -125,7 +130,12 @@ public class CertificateGeneratorService : ICertificateGeneratorService
             ConfigureExtensions(certReq, request);
 
             using var signedCert = certReq.Create(issuerCaCertificate, notBefore, notAfter, serialNumber);
-            return signedCert.CopyWithPrivateKey(ecdsa);
+            var leafWithKey = signedCert.CopyWithPrivateKey(ecdsa);
+            if (!string.IsNullOrWhiteSpace(request.FriendlyName) && OperatingSystem.IsWindows())
+            {
+                try { leafWithKey.FriendlyName = request.FriendlyName; } catch { }
+            }
+            return leafWithKey;
         }
     }
 

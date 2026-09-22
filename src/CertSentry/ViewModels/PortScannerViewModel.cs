@@ -17,6 +17,8 @@ namespace CertSentry.ViewModels;
 public partial class PortScannerViewModel : ObservableObject, INavigationAware
 {
     private readonly IPortScannerService _scannerService;
+    private readonly Wpf.Ui.INavigationService? _navigationService;
+    private readonly TlsProbeViewModel? _tlsProbeViewModel;
     private CancellationTokenSource? _scanCts;
 
     [ObservableProperty]
@@ -37,9 +39,14 @@ public partial class PortScannerViewModel : ObservableObject, INavigationAware
     [ObservableProperty]
     private string _notificationMessage = string.Empty;
 
-    public PortScannerViewModel(IPortScannerService scannerService)
+    public PortScannerViewModel(
+        IPortScannerService scannerService,
+        Wpf.Ui.INavigationService? navigationService = null,
+        TlsProbeViewModel? tlsProbeViewModel = null)
     {
         _scannerService = scannerService;
+        _navigationService = navigationService;
+        _tlsProbeViewModel = tlsProbeViewModel;
     }
 
     public void OnNavigatedTo()
@@ -92,6 +99,20 @@ public partial class PortScannerViewModel : ObservableObject, INavigationAware
             Clipboard.SetText(item.TargetUrl);
             NotificationMessage = $"Copied {item.TargetUrl} to clipboard!";
         }
+    }
+
+    [RelayCommand]
+    public async Task ProbePortInDoctorAsync(PortScanResult? item)
+    {
+        if (item == null) return;
+
+        if (_tlsProbeViewModel != null)
+        {
+            _tlsProbeViewModel.TargetUrl = item.TargetUrl;
+            _ = _tlsProbeViewModel.ProbeEndpointAsync();
+        }
+
+        _navigationService?.Navigate(typeof(Views.Pages.TlsProbePage));
     }
 
     private async Task ExecuteScanAsync(IEnumerable<int> ports)

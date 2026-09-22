@@ -14,7 +14,8 @@ public partial class MainWindow : FluentWindow, INavigationWindow
     public MainWindow(
         MainWindowViewModel viewModel,
         INavigationViewPageProvider pageProvider,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ISnackbarService snackbarService)
     {
         ViewModel = viewModel;
         DataContext = this;
@@ -23,6 +24,7 @@ public partial class MainWindow : FluentWindow, INavigationWindow
 
         SetPageService(pageProvider);
         navigationService.SetNavigationControl(RootNavigation);
+        snackbarService.SetSnackbarPresenter(RootSnackbarPresenter);
 
         // Apply dark theme on launch
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
